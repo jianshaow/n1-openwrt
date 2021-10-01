@@ -13,10 +13,9 @@ on:
 env:
   OP_REPO: jianshaow/lede
   OP_REPO_BRANCH: master
-  BUILD_REPO_PATH: build
-  OP_REPO_PATH: lede
-  FEEDS_CONF: feeds.conf.default
-  CONFIG_FILE: .config
+  BUILD_REPO_PATH: ${{ github.workspace }}/build
+  OP_REPO_PATH: ${{ github.workspace }}/lede
+  ARTIFACT_PATH: ${{ github.workspace }}/artifact
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   TZ: Asia/Shanghai
@@ -25,6 +24,8 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - name: Prepare environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
       run: |
         docker rmi `docker images -q` > /dev/null
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
@@ -32,16 +33,17 @@ jobs:
         sudo -E apt-get -qq install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 python2.7 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler g++-multilib antlr3 gperf wget curl swig rsync
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
-        sudo timedatectl set-timezone "$TZ"
         df -h
+        sudo timedatectl set-timezone "$TZ"
     - name: Checkout build script
       uses: actions/checkout@v2
       with:
-        path=${{ env.BUILD_REPO_PATH }}
+        path: ${{ env.BUILD_REPO_PATH }}
     - name: Checkout op sources
       uses: actions/checkout@v2
       with:
         repository: ${{ env.OP_REPO }}
+        ref: ${{ env.OP_REPO_BRANCH }}
         path: ${{ env.OP_REPO_PATH }}
     - name: Update feeds
       working-directory: ${{ env.OP_REPO_PATH }}
@@ -52,8 +54,8 @@ jobs:
     - name: Generate configuration file
       working-directory: ${{ env.OP_REPO_PATH }}
       run: |
-        cp $GITHUB_WORKSPACE/$BUILD_REPO_PATH/.config ./
-        ls -lrt
+        cp $BUILD_REPO_PATH/.config ./
+        ls -lrta
         make defconfig
     - name: Make download
       working-directory: ${{ env.OP_REPO_PATH }}
@@ -81,3 +83,22 @@ jobs:
         OPENWRT_ARMVIRT: ${{ env.OP_REPO }}/bin/targets/*/*/*.tar.gz
         PACKAGE_SOC: s905d
         KERNEL_VERSION_NAME: 5.4.150
+    - name: Prepare artifact
+      working-directory: ${{ env.OP_REPO_PATH }}
+      run: |
+        rm -rf $(find ./bin/targets/ -type d -name "packages")
+        mkdir -p $ARTIFACT_PATH/firmware
+        mkdir -p $ARTIFACT_PATH/package
+        mkdir -p $ARTIFACT_PATH/buildinfo
+        mkdir -p $ARTIFACT_PATH/images
+        cp .config $ARTIFACT_PATH/
+        cp -rf $(find ./bin/targets/ -type f) ./artifact/firmware/
+        cp -rf $(find ./bin/packages/ -type f -name "*.ipk") $ARTIFACT_PATH/package/
+        cp -rf $(find ./bin/targets/ -type f -name "*.buildinfo" -o -name "*.manifest") $ARTIFACT_PATH/buildinfo/
+        cp -rf $PACKAGED_OUTPUTPATH/* $ARTIFACT_PATH/images/
+    - name: Upload artifact directory
+      uses: actions/upload-artifact@v2
+      with:
+        name: OpenWrt_Artifact
+        path: ${{ env.ARTIFACT_PATH }}
+
