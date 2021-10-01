@@ -79,7 +79,7 @@ jobs:
         du -h --max-depth=1 ./bin
     - name: Package Armvirt as OpenWrt
       if: github.event.inputs.package == 'yes'
-      uses: unifreq/openwrt_packit@master
+      uses: jianshaow/openwrt_packit@master
       env:
         OPENWRT_ARMVIRT: ${{ env.OP_REPO_PATH }}/bin/targets/*/*/*.tar.gz
         PACKAGE_SOC: s905d
