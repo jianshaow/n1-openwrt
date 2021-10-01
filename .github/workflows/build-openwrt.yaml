@@ -81,7 +81,7 @@ jobs:
       if: github.event.inputs.package == 'yes'
       uses: unifreq/openwrt_packit@master
       env:
-        OPENWRT_ARMVIRT: ${{ env.OP_REPO }}/bin/targets/*/*/*.tar.gz
+        OPENWRT_ARMVIRT: ${{ env.OP_REPO_PATH }}/bin/targets/*/*/*.tar.gz
         PACKAGE_SOC: s905d
         KERNEL_VERSION_NAME: 5.4.150
     - name: Prepare artifact
