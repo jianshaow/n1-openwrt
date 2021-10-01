@@ -5,19 +5,19 @@ on:
       package:
         description: "package or not"
         required: false
-        default: "false"
+        default: "yes"
       release:
         description: "release or not"
         required: false
-        default: "false"
+        default: "no"
 env:
   OP_REPO: jianshaow/lede
   OP_REPO_BRANCH: master
   BUILD_REPO_PATH: ${{ github.workspace }}/build
   OP_REPO_PATH: ${{ github.workspace }}/lede
   ARTIFACT_PATH: ${{ github.workspace }}/artifact
-  DIY_P1_SH: diy-part1.sh
-  DIY_P2_SH: diy-part2.sh
+  BEFORE_FEED_SH: before-feed.sh
+  BEFORE_CONFIG_SH: before-config.sh
   TZ: Asia/Shanghai
 jobs:
   build:
@@ -48,7 +48,7 @@ jobs:
     - name: Update feeds
       working-directory: ${{ env.OP_REPO_PATH }}
       run: |
-        sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
+        $BUILD_REPO_PATH/before-feed.sh
         ./scripts/feeds update -a
         ./scripts/feeds install -a
     - name: Generate configuration file
@@ -56,6 +56,7 @@ jobs:
       run: |
         cp $BUILD_REPO_PATH/.config ./
         ls -lrta
+        $BUILD_REPO_PATH/before-config.sh
         make defconfig
     - name: Make download
       working-directory: ${{ env.OP_REPO_PATH }}
@@ -77,7 +78,7 @@ jobs:
         du -h --max-depth=1 ./build_dir
         du -h --max-depth=1 ./bin
     - name: Package Armvirt as OpenWrt
-      if: github.event.inputs.package == 'true'
+      if: github.event.inputs.package == 'yes'
       uses: unifreq/openwrt_packit@master
       env:
         OPENWRT_ARMVIRT: ${{ env.OP_REPO }}/bin/targets/*/*/*.tar.gz
@@ -101,4 +102,3 @@ jobs:
       with:
         name: OpenWrt_Artifact
         path: ${{ env.ARTIFACT_PATH }}
-
