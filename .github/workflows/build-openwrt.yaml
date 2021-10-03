@@ -3,11 +3,15 @@ on:
   workflow_dispatch:
     inputs:
       package:
-        description: "package or not"
+        description: "archive packages or not"
+        required: false
+        default: "no"
+      image:
+        description: "build images or not"
         required: false
         default: "yes"
       release:
-        description: "release or not"
+        description: "upload to release or not"
         required: false
         default: "no"
 env:
@@ -48,15 +52,15 @@ jobs:
     - name: Update feeds
       working-directory: ${{ env.OP_REPO_PATH }}
       run: |
-        $BUILD_REPO_PATH/before-feed.sh
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
+        $BUILD_REPO_PATH/$BEFORE_FEED_SH
+        scripts/feeds update -a
+        scripts/feeds install -a
     - name: Generate configuration file
       working-directory: ${{ env.OP_REPO_PATH }}
       run: |
         cp $BUILD_REPO_PATH/.config ./
         ls -lrta
-        $BUILD_REPO_PATH/before-config.sh
+        $BUILD_REPO_PATH/$BEFORE_CONFIG_SH
         make defconfig
     - name: Make download
       working-directory: ${{ env.OP_REPO_PATH }}
@@ -85,19 +89,31 @@ jobs:
         PACKAGE_SOC: s905d
         KERNEL_VERSION_NAME: 5.4.150
         WHOAMI: cooljj
-    - name: Prepare artifact
+    - name: Prepare build info artifact
       working-directory: ${{ env.OP_REPO_PATH }}
       run: |
         rm -rf $(find ./bin/targets/ -type d -name "packages")
-        mkdir -p $ARTIFACT_PATH/firmware
-        mkdir -p $ARTIFACT_PATH/package
         mkdir -p $ARTIFACT_PATH/buildinfo
-        mkdir -p $ARTIFACT_PATH/images
         cp .config $ARTIFACT_PATH/
-        cp -rf $(find ./bin/targets/ -type f) $ARTIFACT_PATH/firmware/
-        cp -rf $(find ./bin/packages/ -type f -name "*.ipk") $ARTIFACT_PATH/package/
         cp -rf $(find ./bin/targets/ -type f -name "*.buildinfo" -o -name "*.manifest") $ARTIFACT_PATH/buildinfo/
-        cp -rf $PACKAGED_OUTPUTPATH/* $ARTIFACT_PATH/images/
+    - name: Prepare packages artifact
+      if: github.event.inputs.package == 'yes'
+      working-directory: ${{ env.OP_REPO_PATH }}
+      run: |
+        mkdir -p $ARTIFACT_PATH/package
+        cp -rf $(find bin/packages/ -type f -name "*.ipk") $ARTIFACT_PATH/package/
+    - name: Prepare firmwares artifact
+      if: github.event.inputs.image != 'yes'
+      working-directory: ${{ env.OP_REPO_PATH }}
+      run: |
+        mkdir -p $ARTIFACT_PATH/firmware
+        cp -rf $(find ./bin/targets/ -type f -name "*.tar.gz") $ARTIFACT_PATH/firmware/
+    - name: Prepare images artifact
+      if: github.event.inputs.image == 'yes'
+      working-directory: ${{ env.OP_REPO_PATH }}
+      run: |
+        mkdir -p $ARTIFACT_PATH/images
+        cp -rf $PACKAGED_OUTPUTPATH/*.img.gz $ARTIFACT_PATH/images/
     - name: Upload artifact directory
       uses: actions/upload-artifact@v2
       with:
