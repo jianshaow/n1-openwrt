@@ -94,7 +94,7 @@ jobs:
       run: |
         rm -rf $(find ./bin/targets/ -type d -name "packages")
         mkdir -p $ARTIFACT_PATH/buildinfo
-        cp .config $ARTIFACT_PATH/
+        cp .config feeds.conf.default $ARTIFACT_PATH/buildinfo/
         cp -rf $(find ./bin/targets/ -type f -name "*.buildinfo" -o -name "*.manifest") $ARTIFACT_PATH/buildinfo/
     - name: Prepare packages artifact
       if: github.event.inputs.package == 'yes'
