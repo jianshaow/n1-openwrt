@@ -1,1 +1,1 @@
-sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
+echo 'src-git helloworld https://github.com/fw876/helloworld' >> feeds.conf.default
