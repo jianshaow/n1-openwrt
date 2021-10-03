@@ -84,6 +84,7 @@ jobs:
         OPENWRT_ARMVIRT: lede/bin/targets/*/*/*.tar.gz
         PACKAGE_SOC: s905d
         KERNEL_VERSION_NAME: 5.4.150
+        WHOAMI: cooljj
     - name: Prepare artifact
       working-directory: ${{ env.OP_REPO_PATH }}
       run: |
@@ -93,7 +94,7 @@ jobs:
         mkdir -p $ARTIFACT_PATH/buildinfo
         mkdir -p $ARTIFACT_PATH/images
         cp .config $ARTIFACT_PATH/
-        cp -rf $(find ./bin/targets/ -type f) ./artifact/firmware/
+        cp -rf $(find ./bin/targets/ -type f) $ARTIFACT_PATH/firmware/
         cp -rf $(find ./bin/packages/ -type f -name "*.ipk") $ARTIFACT_PATH/package/
         cp -rf $(find ./bin/targets/ -type f -name "*.buildinfo" -o -name "*.manifest") $ARTIFACT_PATH/buildinfo/
         cp -rf $PACKAGED_OUTPUTPATH/* $ARTIFACT_PATH/images/
