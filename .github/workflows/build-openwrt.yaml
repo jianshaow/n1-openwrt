@@ -23,7 +23,6 @@ env:
   BEFORE_FEED_SH: before-feed.sh
   BEFORE_CONFIG_SH: before-config.sh
   TZ: Asia/Shanghai
-  GOPROXY: https://goproxy.cn
 jobs:
   build:
     runs-on: ubuntu-20.04
