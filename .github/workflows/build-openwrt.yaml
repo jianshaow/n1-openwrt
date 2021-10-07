@@ -40,8 +40,8 @@ jobs:
         sudo -E apt-get -y clean
         df -h
         sudo timedatectl set-timezone "$TZ"
-        sudo sed -i '1s/^/nameserver 84.200.69.80\n/' /etc/resolv.conf
-        nslookup goproxy.io
+        sudo echo '162.62.115.165 goproxy.io' >> /etc/hosts
+        curl https://goproxy.io -o /dev/null
     - name: Checkout build script
       uses: actions/checkout@v2
       with:
