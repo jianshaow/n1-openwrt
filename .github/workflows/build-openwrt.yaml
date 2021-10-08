@@ -85,7 +85,7 @@ jobs:
         du -h --max-depth=1 ./build_dir
         du -h --max-depth=1 ./bin
     - name: Package Armvirt as OpenWrt
-      if: github.event.inputs.package == 'yes'
+      if: github.event.inputs.image == 'yes'
       uses: jianshaow/openwrt_packit@master
       env:
         OPENWRT_ARMVIRT: lede/bin/targets/*/*/*.tar.gz
