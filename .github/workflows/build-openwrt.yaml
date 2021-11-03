@@ -40,7 +40,6 @@ jobs:
         sudo -E apt-get -y clean
         df -h
         sudo timedatectl set-timezone "$TZ"
-        echo '162.62.115.165 goproxy.io' | sudo tee -a /etc/hosts
         curl https://goproxy.io -o /dev/null
     - name: Checkout build script
       uses: actions/checkout@v2
