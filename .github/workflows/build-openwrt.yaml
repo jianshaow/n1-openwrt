@@ -119,5 +119,5 @@ jobs:
     - name: Upload artifact directory
       uses: actions/upload-artifact@v2
       with:
-        name: OpenWrt_Artifact
+        name: OpenWrt_Artifact-${{ env.PACKAGED_OUTPUTDATE }}
         path: ${{ env.ARTIFACT_PATH }}
