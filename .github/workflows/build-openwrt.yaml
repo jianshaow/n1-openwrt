@@ -43,8 +43,8 @@ jobs:
         #sudo -E apt clean
         sudo timedatectl set-timezone "$TZ"
         df -h
-        mkdir /mnt/lede
-        #$USER:$GROUPS
+        sudo mkdir /mnt/lede
+        sudo chown $USER:$GROUPS /mnt/lede
         ln -s /mnt/lede ${{ github.workspace }}/lede
         ls ${{ github.workspace }}
     - name: Checkout build script
