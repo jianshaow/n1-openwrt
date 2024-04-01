@@ -48,11 +48,11 @@ jobs:
         ln -s /mnt/lede ${{ github.workspace }}/lede
         ls ${{ github.workspace }}
     - name: Checkout build script
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         path: ${{ env.BUILD_REPO_PATH }}
     - name: Checkout op sources
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: ${{ env.OP_REPO }}
         ref: ${{ env.OP_REPO_BRANCH }}
