@@ -15,7 +15,7 @@ on:
         required: false
         default: "no"
 env:
-  OP_REPO: jianshaow/lede
+  OP_REPO: coolsnowwolf/lede
   OP_REPO_BRANCH: master
   BUILD_REPO_PATH: ${{ github.workspace }}/build
   OP_REPO_PATH: ${{ github.workspace }}/lede
